@@ -1,0 +1,19 @@
+
+users
+- auth
+- bio
+
+search of users
+
+flagging users
+- where does it go? admins?
+
+blocking users
+- stop nuesance users
+
+conversations
+- between two users only
+- messages
+  - is a resource?
+- start, stop
+
