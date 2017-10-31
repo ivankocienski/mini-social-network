@@ -38,7 +38,7 @@ ActiveRecord::Migration.maintain_test_schema!
 RSpec.configure do |config|
 
   # add FactoryGirl methods
-  config.include FactoryGirl::Syntax::Methods
+  config.include FactoryBot::Syntax::Methods
 
   # DB cleaner
   config.before(:suite) do
