@@ -113,5 +113,15 @@ RSpec.describe Auth do
         end
       end
     end
+
+    context Auth::TokenGenerator do
+      context '#generate' do
+        let(:user) { create :user }
+
+        it 'generates token' do
+          expect(subject.generate(user)).not_to be_nil
+        end
+      end
+    end
   end
 end

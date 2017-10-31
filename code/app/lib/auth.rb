@@ -49,5 +49,13 @@ module Auth
     end
   end
 
+  module TokenGenerator
+    extend self
+
+    def generate(user)
+      payload = { user_id: user.id }
+      WebToken.encode payload
+    end
+  end
 end
 
