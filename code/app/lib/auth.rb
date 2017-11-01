@@ -57,5 +57,29 @@ module Auth
       WebToken.encode payload
     end
   end
+
+  module Authenticator
+    extend self
+
+    def authorize_for_params(email, password)
+      TokenGenerator.generate(
+        validate_password(
+          find_user_by_email(email),
+          password))
+    end
+
+    def find_user_by_email(email)
+      user = User.find_by(email: email)
+      return user if user
+
+      raise ExceptionHandler::AuthenticationError
+    end
+
+    def validate_password(user, password)
+      return user if user.authenticate(password)
+
+      raise ExceptionHandler::AuthenticationError
+    end
+  end
 end
 

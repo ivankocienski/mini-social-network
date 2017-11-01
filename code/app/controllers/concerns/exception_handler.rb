@@ -9,7 +9,7 @@ module ExceptionHandler
   class ExpiredSignature < StandardError; end
 
   included do
-    rescue_from ActiveRecord::RecordNotFound with: :four_oh_four
+    rescue_from ActiveRecord::RecordNotFound, with: :four_oh_four
     rescue_from ActiveRecord::RecordInvalid, with: :four_twenty_two
     rescue_from AuthenticationError, with: :unauthorized_request
     rescue_from MissingToken, with: :four_twenty_two

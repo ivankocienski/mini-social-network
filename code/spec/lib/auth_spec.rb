@@ -113,13 +113,56 @@ RSpec.describe Auth do
         end
       end
     end
+  end
 
-    context Auth::TokenGenerator do
-      context '#generate' do
-        let(:user) { create :user }
+  context Auth::TokenGenerator do
+    context '#generate' do
+      let(:user) { create :user }
 
-        it 'generates token' do
-          expect(subject.generate(user)).not_to be_nil
+      it 'generates token' do
+        expect(subject.generate(user)).not_to be_nil
+      end
+    end
+  end
+
+  context Auth::Authenticator do
+    let(:user) { create :user }
+
+    context '#authorize_for_params' do
+      it 'returns a token' do
+        # the internal workings of this sub
+        # are specced fully elswhere
+        expect(subject.authorize_for_params(user.email, user.password)).not_to be_nil
+      end
+    end
+
+    context '#find_user_by_email' do
+      context 'with existant user' do
+        it 'returns user' do
+          expect(subject.find_user_by_email(user.email)).to eq(user)
+        end
+      end
+
+      context 'with non existant user' do
+        it 'raises error' do
+          expect { subject.find_user_by_email('user@example.com') }
+            .to raise_error(ExceptionHandler::AuthenticationError)
+        end
+      end
+    end
+
+    context '#validate_password' do
+
+      context 'with correct password' do
+        it 'returns user' do
+          expect(subject.validate_password(user, user.password)).to eq(user)
+        end
+      end
+
+      context 'with incorrect password' do
+        it 'raises error' do
+          expect { subject.validate_password(user, 'notarealpassword') }
+            .to raise_error(ExceptionHandler::AuthenticationError)
         end
       end
     end
