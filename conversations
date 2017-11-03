@@ -1,0 +1,57 @@
+conversations
+
+person A wants to talk to person B
+
+person A
+  is logged in.
+  searches, finds user to talk to
+  creates conversation with that user
+  (person B accepts conversation)
+  (person B rejects conversation)
+  person A and B chat by updating conversation with new messages
+  person A or B can end conversation
+
+
+
+
+person B is sees a conversation invite
+  is logged in
+  shows conversations
+  (filters on 'new' state)
+  replies to conversation (with message) (accept)
+  deletes conversation (reject)
+
+
+
+
+
+states for conversation initiator
+
+new
+  (cant send messages)
+
+rejected
+  (cant send messages)
+
+open
+  (message passing)
+
+closed
+  (cant send messages)
+
+
+
+
+states for conversation member
+
+invite
+  (send message) (accepts)
+
+(rejected)
+
+open
+  (send messages)
+
+closed
+  (cant send messages)
+
