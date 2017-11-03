@@ -4,4 +4,8 @@ class User < ApplicationRecord
 
   validates_presence_of :name, :email, :password_digest
 
+  has_many :created_conversations, foreign_key: :created_by_user_id, class_name: 'Conversation'
+  has_many :conversation_users
+  has_many :conversations, through: :conversation_users
+
 end
