@@ -5,15 +5,20 @@ class Conversation < ApplicationRecord
 
   def self.create_between(user_a, user_b)
 
+    conv = nil
+
     transaction do
+      raise ActiveRecord::RecordNotUnique, 'Can\'t converse with self' if user_a == user_b
+
       ConversationUser.validate_unique_conversation_between! user_a, user_b
 
       conv = user_a.created_conversations.create!
       conv.conversation_users.create! user: user_a
       conv.conversation_users.create! user: user_b
 
-      conv
     end
+
+    conv
   end
 
 

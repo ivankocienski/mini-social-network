@@ -1,5 +1,5 @@
 FactoryBot.define do
   factory :conversation do
-    created_by_user_id ""
+    association :created_by, factory: :user
   end
 end
