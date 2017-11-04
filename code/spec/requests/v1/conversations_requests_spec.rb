@@ -3,6 +3,8 @@ require 'rails_helper'
 RSpec.describe V1::ConversationsController, type: :request do
 
   let!(:user) { create :user }
+  let(:other_user) { create :user }
+  let(:conversation) { Conversation.create_between user, other_user }
 
   context '#index' do
     before do
@@ -30,7 +32,6 @@ RSpec.describe V1::ConversationsController, type: :request do
 
   context '#create' do
 
-    let(:other_user) { create :user }
 
     context 'with valid params' do
       let(:params_json) { { other_user_id: other_user.id }.to_json }
@@ -89,6 +90,21 @@ RSpec.describe V1::ConversationsController, type: :request do
   end
 
   context '#show' do
+    before do
+      get "/v1/conversations/#{conversation.id}", headers: valid_headers
+    end
+
+    it 'shows the conversation' do
+      expect(response).to have_http_status(200)
+    end
+
+    it 'has conversation data' do
+      data = json
+      expect(data['id']).to eq(conversation.id)
+      expect(data['other_user_id']).to eq(other_user.id)
+      expect(data['started']).not_to be_nil
+      expect(data['messages']).not_to be_nil
+    end
   end
 
   context '#update' do

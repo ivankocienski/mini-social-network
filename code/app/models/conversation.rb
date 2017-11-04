@@ -28,4 +28,12 @@ class Conversation < ApplicationRecord
   def send_message(user)
   end
 
+  def other_user_id(not_this_user)
+    ConversationUser.
+      where( conversation_id: self.id).
+      where( 'user_id != ?', not_this_user.id ).
+      first.
+      id
+  end
+
 end

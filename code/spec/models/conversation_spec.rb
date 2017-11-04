@@ -22,4 +22,13 @@ RSpec.describe Conversation, type: :model do
   context '#send_message' do
   end
 
+  context '#other_user_id' do
+    let(:conversation) { Conversation.create_between(user_a, user_b) }
+
+    it 'shows me the other users ID' do
+      expect(conversation.other_user_id(user_a)).to eq(user_b.id)
+      expect(conversation.other_user_id(user_b)).to eq(user_a.id)
+    end
+  end
+
 end
