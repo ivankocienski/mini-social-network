@@ -31,8 +31,6 @@ RSpec.describe V1::ConversationsController, type: :request do
   end
 
   context '#create' do
-
-
     context 'with valid params' do
       let(:params_json) { { other_user_id: other_user.id }.to_json }
 

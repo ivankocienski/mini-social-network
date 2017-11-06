@@ -102,17 +102,32 @@ RSpec.describe Conversation, type: :model do
             to raise_error(ActiveRecord::RecordInvalid)
         end
 
-        it 'does not post reply'
+        it 'does not post reply' do
+          expect {
+            begin
+              conversation.reply_message(user_a, 'message')
+            rescue ActiveRecord::RecordInvalid
+              # silence you
+            end
+          }.not_to change(Message, :count)
+        end
       end
 
       context 'in "open" state' do
-        it 'does not raise error' do
+        before do
           conversation.update state: 'open'
+        end
+
+        it 'does not raise error' do
           expect { conversation.reply_message(user_a, 'message') }.
             not_to raise_error
         end
 
-        it 'posts reply'
+        it 'posts reply' do
+          expect {
+            conversation.reply_message(user_a, 'message')
+          }.to change(Message, :count).by(1)
+        end
       end
 
       context 'in "closed" state' do
@@ -131,11 +146,20 @@ RSpec.describe Conversation, type: :model do
           expect(conversation.state_for(user_b)).to eq('open')
         end
 
-        it 'posts reply'
+        it 'posts reply' do
+          expect {
+            conversation.reply_message(user_b, 'message')
+          }.to change(Message, :count).by(1)
+        end
       end
 
       context 'when in "open" state' do
-        it 'posts reply'
+        it 'posts reply' do
+          conversation.update state: 'open'
+          expect {
+            conversation.reply_message(user_b, 'message')
+          }.to change(Message, :count).by(1)
+        end
       end
     end
   end

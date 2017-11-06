@@ -3,6 +3,8 @@ class Conversation < ApplicationRecord
   has_many :conversation_users, dependent: :destroy
   belongs_to :created_by, class_name: 'User', foreign_key: :created_by_user_id
 
+  has_many :messages, dependent: :destroy
+
   def self.create_between(user_a, user_b)
 
     conv = nil
@@ -54,8 +56,7 @@ class Conversation < ApplicationRecord
         end
       end
 
-
-      # do message things now...
+      messages.create! user: user, text: message
     end
   end
 
