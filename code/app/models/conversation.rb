@@ -1,6 +1,6 @@
 class Conversation < ApplicationRecord
 
-  has_many :conversation_users
+  has_many :conversation_users, dependent: :destroy
   belongs_to :created_by, class_name: 'User', foreign_key: :created_by_user_id
 
   def self.create_between(user_a, user_b)
@@ -23,6 +23,15 @@ class Conversation < ApplicationRecord
 
 
   def stop(user)
+    transaction do
+      if is_owned_by?(user)
+        destroy
+
+      else # not owner
+        update state: 'closed'
+        conversation_users.where(user: user).destroy_all
+      end
+    end
   end
 
   def reply_message(user, message)
@@ -30,7 +39,12 @@ class Conversation < ApplicationRecord
     transaction do
       if is_owned_by? user
         if state_for(user) == 'new'
-          errors[:base] << 'Cannot reply to convesation that has not been accepted by other party'
+          errors[:base] << 'Cannot reply to conversation that has not been accepted by other party'
+          raise ActiveRecord::RecordInvalid, self
+        end
+
+        if state_for(user) == 'closed'
+          errors[:base] << 'Cannot reply to conversation that has been closed'
           raise ActiveRecord::RecordInvalid, self
         end
 

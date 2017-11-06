@@ -18,9 +18,39 @@ RSpec.describe Conversation, type: :model do
   end
 
   context '#stop' do
-  end
+    before do
+      conversation
+    end
 
-  context '#send_message' do
+    context 'when initiator (owner) of conversation' do
+
+      it 'deletes object and relationships to users' do
+        expect(user_a.conversations.count).to eq(1)
+        expect(user_b.conversations.count).to eq(1)
+
+        conversation.stop(user_a)
+
+        expect(user_a.conversations.count).to eq(0)
+        expect(user_b.conversations.count).to eq(0)
+      end
+    end
+
+    context 'when participant (non owner) of conversation' do
+      it 'deletes object and relationships to users' do
+        expect(user_a.conversations.count).to eq(1)
+        expect(user_b.conversations.count).to eq(1)
+
+        conversation.stop(user_b)
+
+        expect(user_a.conversations.count).to eq(1) # still exists for this user
+        expect(user_b.conversations.count).to eq(0)
+      end
+
+      it 'changes conversation state to "closed"' do
+        conversation.stop(user_b)
+        expect(conversation.state_for(user_a)).to eq('closed')
+      end
+    end
   end
 
   context '#other_user_id' do
@@ -83,6 +113,14 @@ RSpec.describe Conversation, type: :model do
         end
 
         it 'posts reply'
+      end
+
+      context 'in "closed" state' do
+        it 'raises error' do
+          conversation.update state: 'closed'
+          expect { conversation.reply_message(user_a, 'message') }.
+            to raise_error(ActiveRecord::RecordInvalid)
+        end
       end
     end
 

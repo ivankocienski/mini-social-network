@@ -154,6 +154,10 @@ RSpec.describe V1::ConversationsController, type: :request do
   end
 
   context '#destroy' do
+    it 'destroys conversation for user' do
+      delete "/v1/conversations/#{conversation.id}", headers: valid_headers
+      expect(response).to have_http_status(202)
+    end
   end
 
 end

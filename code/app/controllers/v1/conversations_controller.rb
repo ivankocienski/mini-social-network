@@ -39,6 +39,11 @@ class V1::ConversationsController < V1::SecureApiController
   end
 
   def destroy
+    @conversation.stop current_user
+    payload = {
+      conversation: 'stopped'
+    }
+    json_response payload, :accepted
   end
 
   private
