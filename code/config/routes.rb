@@ -9,4 +9,6 @@ Rails.application.routes.draw do
 
   end
 
+  root 'root#root'
+
 end
