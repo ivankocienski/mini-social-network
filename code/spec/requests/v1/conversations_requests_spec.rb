@@ -89,6 +89,9 @@ RSpec.describe V1::ConversationsController, type: :request do
 
   context '#show' do
     before do
+      conversation.messages.create! user: user, text: "reply 1"
+      conversation.messages.create! user: user, text: "reply 2"
+      conversation.messages.create! user: user, text: "reply 3"
       get "/v1/conversations/#{conversation.id}", headers: valid_headers
     end
 
@@ -101,7 +104,7 @@ RSpec.describe V1::ConversationsController, type: :request do
       expect(data['id']).to eq(conversation.id)
       expect(data['other_user_id']).to eq(other_user.id)
       expect(data['started']).not_to be_nil
-      expect(data['messages']).not_to be_nil
+      expect(data['messages'].length).to eq(3)
     end
   end
 

@@ -24,7 +24,7 @@ class V1::ConversationsController < V1::SecureApiController
       state: @conversation.state_for(current_user),
       other_user_id: @conversation.other_user_id(current_user),
       started: @conversation.created_at,
-      messages: [] # TODO
+      messages: @conversation.messages.order(:created_at).all
     }
 
     json_response payload
