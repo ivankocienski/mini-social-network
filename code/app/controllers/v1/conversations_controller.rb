@@ -21,6 +21,7 @@ class V1::ConversationsController < V1::SecureApiController
   def show
     payload = {
       id: @conversation.id,
+      state: @conversation.state_for(current_user),
       other_user_id: @conversation.other_user_id(current_user),
       started: @conversation.created_at,
       messages: [] # TODO
@@ -30,6 +31,11 @@ class V1::ConversationsController < V1::SecureApiController
   end
 
   def update
+    @conversation.reply_message current_user, params[:message]
+    payload = {
+      message: params[:message]
+    }
+    json_response payload, :accepted
   end
 
   def destroy

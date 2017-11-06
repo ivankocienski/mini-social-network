@@ -25,7 +25,28 @@ class Conversation < ApplicationRecord
   def stop(user)
   end
 
-  def send_message(user)
+  def reply_message(user, message)
+
+    transaction do
+      if is_owned_by? user
+        if state_for(user) == 'new'
+          errors[:base] << 'Cannot reply to convesation that has not been accepted by other party'
+          raise ActiveRecord::RecordInvalid, self
+        end
+
+      else # not owned by
+        if state_for(user) == 'invite'
+          update state: 'open'
+        end
+      end
+
+
+      # do message things now...
+    end
+  end
+
+  def is_owned_by?(user)
+    self.created_by_user_id == user.id
   end
 
   def other_user_id(not_this_user)
@@ -34,6 +55,14 @@ class Conversation < ApplicationRecord
       where( 'user_id != ?', not_this_user.id ).
       first.
       id
+  end
+
+  def state_for(user)
+    my_state = self.state || 'new'
+
+    return 'invite' if my_state == 'new' && !is_owned_by?(user)
+
+    my_state
   end
 
 end

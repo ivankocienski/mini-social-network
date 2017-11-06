@@ -108,6 +108,49 @@ RSpec.describe V1::ConversationsController, type: :request do
   end
 
   context '#update' do
+    # see also spec/code for model Conversation#reply_message
+    #   for the grittier DB details
+
+    let(:params) { { 'message' => 'This is a reply' }.to_json }
+
+    context 'when initiating user' do
+      context 'when conversation is in "new" state' do
+        before do
+          put "/v1/conversations/#{conversation.id}", params: params, headers: valid_headers
+        end
+
+        it 'rejects request' do
+          expect(response).to have_http_status(422)
+        end
+      end
+
+      context 'when conversation is in "open" state' do
+        before do
+          conversation.update state: 'open'
+          put "/v1/conversations/#{conversation.id}", params: params, headers: valid_headers
+        end
+
+        it 'accepts request' do
+          expect(response).to have_http_status(202)
+        end
+      end
+    end
+
+    context 'when participating user' do
+      let(:other_valid_headers) do
+        valid_headers.tap do |vh|
+          vh['Authorization'] = token_generator(other_user.id)
+        end
+      end
+
+      before do
+        put "/v1/conversations/#{conversation.id}", params: params, headers: other_valid_headers
+      end
+
+      it 'accepts request' do
+        expect(response).to have_http_status(202)
+      end
+    end
   end
 
   context '#destroy' do
