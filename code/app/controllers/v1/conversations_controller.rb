@@ -1,9 +1,26 @@
 class V1::ConversationsController < V1::SecureApiController
 
+  include Pagination
+
   before_action :find_conversation, only: %i{ show update destroy }
 
   def index
-    json_response current_user.conversations.all
+    conversations = current_user.conversations.
+      offset(offset_param).
+      limit(limit_param).
+      order(:created_at).
+      all
+
+    total_count = current_user.conversations.count
+
+    payload = {
+      offset: offset_param,
+      limit: limit_param,
+      total_count: total_count,
+      conversations: conversations
+    }
+
+    json_response payload
   end
 
   def create

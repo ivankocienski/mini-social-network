@@ -36,3 +36,14 @@ cannot converse with someone who has not accepted conversations
 
 can block users from conversation invites
 
+
+pagination
+  conversations
+    by updated at
+    limit 100
+    offset by integer
+  messages
+    by created_at DESC
+    offset by 'from date'
+    limit 100
+    if first message younger than conversation updated_at then there is more

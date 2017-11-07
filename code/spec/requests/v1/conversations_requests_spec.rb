@@ -26,7 +26,36 @@ RSpec.describe V1::ConversationsController, type: :request do
     end
 
     it 'has contents' do
-      expect(json.length).to eq(10)
+      expect(json['conversations'].length).to eq(10)
+    end
+
+    context 'pagination' do
+      before do
+        Conversation.transaction do
+          conversations = create_list(:conversation, 140, created_by: user)
+
+          conversations.each do |c|
+            ConversationUser.create! user: user, conversation: c
+          end
+        end
+      end
+
+      it 'limits number of convesations' do
+        get '/v1/conversations', headers: valid_headers
+        expect(json['conversations'].size).to eq(100)
+      end
+
+      it 'can take limit param' do
+        params = { limit: 50 }
+        get '/v1/conversations', params: params, headers: valid_headers
+        expect(json['conversations'].size).to eq(50)
+      end
+
+      it 'can take offset' do
+        params = { offset: 100 }
+        get '/v1/conversations', params: params, headers: valid_headers
+        expect(json['conversations'].size).to eq(50)
+      end 
     end
   end
 
