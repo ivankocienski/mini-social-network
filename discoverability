@@ -1,0 +1,14 @@
+
+Discoverability
+
+'/users' controller
+
+/users is an index.
+  ?search=<bla> does a crude search
+  paginated
+
+/users/:id show user
+  nothing really too fancy (can't see conversations)
+  number of conversations
+  time joined
+

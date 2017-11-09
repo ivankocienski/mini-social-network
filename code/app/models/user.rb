@@ -10,4 +10,9 @@ class User < ApplicationRecord
 
   has_many :messages, dependent: :destroy
 
+  def self.search(for_name)
+    # this is not how you do 'proper' search
+    where('name like ?', "%#{for_name}%").order(:name)
+  end
+
 end
