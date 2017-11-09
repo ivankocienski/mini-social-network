@@ -117,23 +117,75 @@ RSpec.describe V1::ConversationsController, type: :request do
   end
 
   context '#show' do
-    before do
-      conversation.messages.create! user: user, text: "reply 1"
-      conversation.messages.create! user: user, text: "reply 2"
-      conversation.messages.create! user: user, text: "reply 3"
-      get "/v1/conversations/#{conversation.id}", headers: valid_headers
+
+    context '(with a few messages)' do
+      before do
+        conversation.messages.create! user: user, text: "reply 1"
+        conversation.messages.create! user: user, text: "reply 2"
+        conversation.messages.create! user: user, text: "reply 3"
+        get "/v1/conversations/#{conversation.id}", headers: valid_headers
+      end
+
+      it 'shows the conversation' do
+        expect(response).to have_http_status(200)
+      end
+
+      it 'has conversation data' do
+        data = json
+        expect(data['id']).to eq(conversation.id)
+        expect(data['other_user_id']).to eq(other_user.id)
+        expect(data['started_on']).not_to be_nil
+        expect(data['last_message_on']).not_to be_nil
+        expect(data['messages'].length).to eq(3)
+      end
     end
 
-    it 'shows the conversation' do
-      expect(response).to have_http_status(200)
-    end
+    context '(with many messages' do
 
-    it 'has conversation data' do
-      data = json
-      expect(data['id']).to eq(conversation.id)
-      expect(data['other_user_id']).to eq(other_user.id)
-      expect(data['started']).not_to be_nil
-      expect(data['messages'].length).to eq(3)
+      let(:epoch) { Time.now.utc - 500.days }
+
+      before do
+        past_time = epoch
+
+        # 10 posts a day for 20 days from epoch
+        20.times do
+          Timecop.freeze(past_time) do
+            10.times do
+              conversation.reply_message other_user, 'message'
+            end
+          end
+
+          past_time += 1.days
+        end
+      end
+
+      it 'limits number of messages recieved' do
+        get "/v1/conversations/#{conversation.id}", headers: valid_headers
+        expect(json['messages'].length).to eq(100)
+      end
+
+      context 'with from_time parameter' do
+
+        let(:epoch_params) { { from_time: epoch + 15.days } }
+        let(:message_times) { json['messages'].map { |m| m['created_at'].to_datetime.utc } }
+
+        before do
+          get "/v1/conversations/#{conversation.id}", params: epoch_params, headers: valid_headers
+        end
+
+        it 'slides the time window around' do
+          expect(message_times.length).to eq(50)
+        end
+
+        it 'has the first message as the from_time' do
+          expect(message_times.first.to_i).to eq((epoch + 15.days).to_i)
+        end
+
+        it 'has the proper sort order' do
+          expect(message_times.first < message_times.last).to be_truthy
+        end
+      end
+
     end
   end
 

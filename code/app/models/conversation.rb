@@ -56,6 +56,8 @@ class Conversation < ApplicationRecord
         end
       end
 
+      touch # updated_at
+
       messages.create! user: user, text: message
     end
   end

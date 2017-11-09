@@ -36,12 +36,22 @@ class V1::ConversationsController < V1::SecureApiController
   end
 
   def show
+    messages = @conversation.messages.
+      order(:created_at). # chat order
+      limit(limit_param)
+
+    if params[:from_time]
+      messages = messages.
+        where('created_at >= ?', params[:from_time])
+    end
+
     payload = {
       id: @conversation.id,
       state: @conversation.state_for(current_user),
       other_user_id: @conversation.other_user_id(current_user),
-      started: @conversation.created_at,
-      messages: @conversation.messages.order(:created_at).all
+      started_on: @conversation.created_at,
+      last_message_on: @conversation.updated_at,
+      messages: messages.all
     }
 
     json_response payload

@@ -162,6 +162,17 @@ RSpec.describe Conversation, type: :model do
         end
       end
     end
+
+    context 'updated_at' do
+      it 'is set to the time of the last reply' do
+        conversation.update updated_at: Time.now - 100.days
+
+        Timecop.freeze do
+          conversation.reply_message(user_b, 'message')
+          expect(conversation.updated_at).to eq(Time.now)
+        end
+      end
+    end
   end
 
 end
