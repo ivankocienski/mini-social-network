@@ -3,13 +3,24 @@ class V1::UsersController < V1::SecureApiController
   include Pagination
 
   def index
+    if params[:search_name]
+      user_count = User.search(params[:search_name]).count
+      users = User.
+        search(params[:search_name]).
+        offset(offset_param).
+        limit(limit_param).
+        order(:name).
+        all
 
-    user_count = User.count
-    users = User.
-      offset(offset_param).
-      limit(limit_param).
-      order(:name).
-      all
+    else
+      user_count = User.count
+      users = User.
+        offset(offset_param).
+        limit(limit_param).
+        order(:name).
+        all
+    end
+
 
     payload = {
       count: user_count,

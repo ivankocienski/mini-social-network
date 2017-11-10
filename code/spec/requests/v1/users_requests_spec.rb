@@ -39,6 +39,22 @@ RSpec.describe V1::ConversationsController, type: :request do
         expect(json['users'].length).to eq(100)
       end
     end
+
+    context 'name search' do
+      before do
+        3.times do |n|
+          create :user, name: "alpha#{n}"
+          create :user, name: "bob#{n}"
+        end
+
+        get '/v1/users', params: { search_name: 'alpha' }, headers: valid_headers
+      end
+
+      it 'can search for names' do
+        expect(response).to be_success
+        expect(json['users'].length).to eq(3)
+      end
+    end
   end
 
   describe 'GET /users/:id' do
