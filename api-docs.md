@@ -54,7 +54,7 @@ Use of `AUTH_TOKEN` is required to use restricted end points.
 
 ### Failures
 
-This call will fail any of the parameters is missing.
+`422` invalid: This call will fail if any of the parameters are missing.
 
 
 ## Log in
@@ -79,11 +79,11 @@ Use of `AUTH_TOKEN` is required to use restricted end points.
 
 If the user can't be located or the password is incorrect.
 
-    ###############################################################
-    #                                                             #
-    #   All paths below this point require a vaalid auth token!   #
-    #                                                             #
-    ###############################################################
+    ##############################################################
+    #                                                            #
+    #   All paths below this point require a valid auth token!   #
+    #                                                            #
+    ##############################################################
 
 ## Conversation Index
 
@@ -140,16 +140,29 @@ This request should never fail.
 ### Failures
 
 `404` not found: if the other user cannot be found.
+
 `422` invalid: if you have already got a conversation with this user.
+
 `422` invalid: if you are trying to have a conversation with yourself
 
 ## See Conversation
 
-    POST /v1/conversations/:id
+    GET /v1/conversations/:id
 
 ### Parameters
 
+`id` being the ID of the conversation to retreive. Must be the ID of a conversation requesting user is party to.
+
 ### Returns
+
+    {
+        "id":1,
+        "state": "new",
+        "other_user_id": 2,
+        "started_on": "2017-11-13T17:40:47.549Z",
+        "last_message_on": "2017-11-13T17:40:47.549Z",
+        "messages": []
+    }
 
 ### Failures
 
