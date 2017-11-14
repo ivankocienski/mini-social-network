@@ -17,7 +17,7 @@ class V1::ConversationsController < V1::SecureApiController
       offset: offset_param,
       limit: limit_param,
       total_count: total_count,
-      conversations: conversations
+      conversations: serialize_resource(conversations)
     }
 
     json_response payload
@@ -45,14 +45,11 @@ class V1::ConversationsController < V1::SecureApiController
         where('created_at >= ?', params[:from_time])
     end
 
-    payload = {
-      id: @conversation.id,
-      state: @conversation.state_for(current_user),
-      other_user_id: @conversation.other_user_id(current_user),
-      started_on: @conversation.created_at,
-      last_message_on: @conversation.updated_at,
-      messages: messages.all
-    }
+    payload = ConversationSerializer.serialize_for_show(
+      @conversation,
+      current_user,
+      messages
+    )
 
     json_response payload
   end

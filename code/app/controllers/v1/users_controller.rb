@@ -9,24 +9,21 @@ class V1::UsersController < V1::SecureApiController
         search(params[:search_name]).
         offset(offset_param).
         limit(limit_param).
-        order(:name).
-        all
+        order(:name)
 
     else
       user_count = User.count
       users = User.
         offset(offset_param).
         limit(limit_param).
-        order(:name).
-        all
+        order(:name)
     end
-
 
     payload = {
       count: user_count,
       offset: offset_param,
       limit: limit_param,
-      users: users
+      users: serialize_resource(users)
     }
 
     json_response payload
